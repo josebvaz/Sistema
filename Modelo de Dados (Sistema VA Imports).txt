@@ -1,0 +1,50 @@
+Modelo de Dados (Sistema VA Imports)
+
+
+- Usuários -
+UsuarioID (chave primaria)
+Nome
+Senha
+
+
+- Produto -
+ProdutoID (chave primária)
+Nome
+Descrição
+Preço
+Estoque
+CategoriaID (chave estrangeira)
+Categorias
+
+
+- Cliente -
+ClienteID (chave primária)
+Nome
+NumTelefone
+Endereço
+Bairro
+Compra
+
+
+- Vendas -
+VendaID (chave primária)
+Data
+ClienteID (chave estrangeira)
+Total
+ItensVenda
+
+
+- Pagamentos -
+PagamentoID (chave primária)
+VendaID (chave estrangeira)
+DataPagamento
+Valor
+MetodoPagamento (Dinheiro, Cartão, Pix)
+EstoqueMovimentacao
+
+
+- EstoqueMovimentação -
+DataMovimentacao (chave primaria)
+ProdutoID (chave estrangeira)
+Estoque 
+TipoMovimentacao (Entrada, Saída)
