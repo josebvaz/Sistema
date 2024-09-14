@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estoque</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    h1 {
+      color: #333;
+      padding: 20px;
+      margin: 0;
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .container {
+      padding: 20px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group input, .form-group select {
+      width: 70%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .update-stock-btn {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .update-stock-btn:hover {
+      background-color: #0056b3;
+    }
+
+    .product-list {
+      margin-top: 20px;
+    }
+
+    .product-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .product-item:last-child {
+      border-bottom: none;
+    }
+
+    .search-bar {
+      margin-bottom: 15px;
+      display: flex;
+      width: 70%;
+    }
+
+    .search-bar input {
+      flex: 1;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Estoque</h1>
+  <div class="container">
+    <!-- Barra de pesquisa -->
+    <div class="search-bar">
+      <label for="search-product">Pesquisar produto:</label>
+      <input type="text" id="search-stock" placeholder="Pesquisar produtos..." oninput="filterProducts()">
+    </div>
+
+    <!-- Formulário para atualizar o estoque -->
+    <div class="form-group">
+      <label for="update-product">Produto:</label>
+      <select id="update-product"></select>
+    </div>
+    <div class="form-group">
+      <label for="update-stock">Adicionar Quantidade:</label>
+      <input type="number" id="update-stock" placeholder="Digite a quantidade" min="0">
+    </div>
+    <button class="update-stock-btn" onclick="updateStock()">Atualizar Estoque</button>
+
+    <!-- Lista de produtos -->
+    <div class="product-list" id="product-list">
+      <h2>Lista de Produtos</h2>
+    </div>
+
+    <script>
+      let products = JSON.parse(localStorage.getItem('products')) || [];
+
+      function renderProducts() {
+        const productSelect = document.getElementById('update-product');
+        productSelect.innerHTML = '<option value="">Selecione um produto</option>';
+
+        products.forEach((product, index) => {
+          const option = document.createElement('option');
+          option.value = index;
+          option.textContent = `${product.name} - R$${product.price.toFixed(2)} - Estoque: ${product.stock}`;
+          productSelect.appendChild(option);
+        });
+        renderProductList();
+      }
+
+      function updateStock() {
+        const productIndex = document.getElementById('update-product').value;
+        const quantity = document.getElementById('update-stock').value;
+
+        if (productIndex !== '' && quantity) {
+          products[productIndex].stock += parseInt(quantity);
+          localStorage.setItem('products', JSON.stringify(products));
+          renderProducts();
+          clearInputs();
+        } else {
+          alert("Por favor, selecione um produto e digite a quantidade.");
+        }
+      }
+
+      function renderProductList() {
+        const productList = document.getElementById('product-list');
+        productList.innerHTML = '<h2>Lista de Produtos</h2>';
+
+        products.forEach((product) => {
+          const productItem = document.createElement('div');
+          productItem.className = 'product-item';
+          productItem.innerHTML = `
+            <span>${product.name} - R$${product.price.toFixed(2)} - Estoque: ${product.stock}</span>
+          `;
+          productList.appendChild(productItem);
+        });
+      }
+
+      function clearInputs() {
+        document.getElementById('update-product').value = '';
+        document.getElementById('update-stock').value = '';
+      }
+
+      function filterProducts() {
+        const query = document.getElementById('search-stock').value.toLowerCase();
+        const filteredProducts = products.filter(product => product.name.toLowerCase().includes(query));
+        renderFilteredProducts(filteredProducts);
+      }
+
+      function renderFilteredProducts(filteredProducts) {
+        const productSelect = document.getElementById('update-product');
+        productSelect.innerHTML = '<option value="">Selecione um produto</option>';
+
+        filteredProducts.forEach((product, index) => {
+          const option = document.createElement('option');
+          option.value = index;
+          option.textContent = `${product.name} - R$${product.price.toFixed(2)} - Estoque: ${product.stock}`;
+          productSelect.appendChild(option);
+        });
+        renderProductList();
+      }
+
+      renderProducts();
+    </script>
+  </div>
+</body>
+</html>

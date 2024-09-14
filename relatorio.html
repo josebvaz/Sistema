@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatórios</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    h1 {
+      color: #333;
+      padding: 20px;
+      margin: 0;
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .container {
+      padding: 20px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .report {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Relatórios</h1>
+  <div class="container">
+    <div class="report" id="report">
+      <h2>Total de Vendas do Mês</h2>
+      <p id="total-sales">R$0,00</p>
+    </div>
+
+    <script>
+      function calculateMonthlySales() {
+        let sales = JSON.parse(localStorage.getItem('sales')) || [];
+        let totalSales = 0;
+
+        sales.forEach(sale => {
+          totalSales += parseFloat(sale.total);
+        });
+
+        document.getElementById('total-sales').textContent = `R$${totalSales.toFixed(2)}`;
+      }
+
+      calculateMonthlySales();
+    </script>
+  </div>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clientes</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    h1 {
+      color: #333;
+      padding: 20px;
+      margin: 0;
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .container {
+      padding: 20px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .form-group-name, .form-group-num, .form-group-endereco, .form-group-bairro {
+      margin-bottom: 15px;
+    }
+
+    .form-group-name input, .form-group-num input, .form-group-endereco input, .form-group-bairro input, .form-group-name select, .form-group-num select, .form-group-endereco select, .form-group-bairro select {
+      width: 91%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .add-client-btn {
+      background-color: #5bb600;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .add-client-btn:hover {
+      background-color: #89b300;
+    }
+
+    .client-list {
+      margin-top: 20px;
+    }
+
+    .client-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .client-item:last-child {
+      border-bottom: none;
+    }
+
+    .remove-btn {
+      background-color: #dc3545;
+      color: white;
+      padding: 5px 10px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .remove-btn:hover {
+      background-color: #c82333;
+    }
+
+    .search-bar {
+      margin-bottom: 15px;
+      display: flex;
+      width: 1100px;
+      padding: 10px;
+      flex: 1;
+      margin-right: 10px;
+    }
+
+    .search-bar input {
+      flex: 1;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Clientes</h1>
+  <div class="container">
+    <!-- Barra de pesquisa -->
+    <div class="search-bar">
+      <label for="search-product">Pesquisar cliente:</label>
+      <input type="text" id="search-client" placeholder="Pesquisar clientes..." oninput="filterClients()">
+    </div>
+
+    <!-- Formulário para adicionar clientes -->
+    <div class="form-group-name">
+      <label for="client-name">Nome:</label>
+      <br>
+      <input type="text" id="client-nome" placeholder="Digite o nome do cliente">
+    </div>
+    <div class="form-group-num">
+      <label for="client-num">Número:</label>
+      <br>
+      <input type="text" id="client-num" placeholder="(00) 0 00000-0000">
+    </div>
+    <div class="form-group-endereco">
+      <label for="client-endereco">Endereço/N°:</label>
+      <br>
+      <input type="text" id="client-endereco" placeholder="Digite o endereço do cliente">
+    </div>
+    <div class="form-group-bairro">
+      <label for="client-bairro">Bairro:</label>
+      <br>
+      <input type="text" id="client-bairro" placeholder="Digite o bairro">
+    </div>
+    <button class="add-client-btn" onclick="addClient()">Adicionar Cliente</button>
+
+    <!-- Lista de clientes -->
+    <div class="client-list" id="client-list">
+      <h2>Lista de Clientes</h2>
+    </div>
+
+    <script>
+      let clients = JSON.parse(localStorage.getItem('clients')) || [];
+
+      function addClient() {
+        const nome = document.getElementById('client-nome').value;
+        const num = document.getElementById('client-num').value;
+        const endereco = document.getElementById('client-endereco').value;
+        const bairro = document.getElementById('client-bairro').value;
+
+        if (nome && num && endereco && bairro) {
+          const client = { nome, num, endereco, bairro };
+          clients.push(client);
+          localStorage.setItem('clients', JSON.stringify(clients));
+          renderClients();
+          clearInputs();
+        } else {
+          alert("Por favor, preencha todos os campos.");
+        }
+      }
+
+      function renderClients() {
+        const clientList = document.getElementById('client-list');
+        clientList.innerHTML = '<h2>Lista de Clientes</h2>';
+
+        clients.forEach((client, index) => {
+          const clientItem = document.createElement('div');
+          clientItem.className = 'client-item';
+          clientItem.innerHTML = `
+            <span>${client.nome} - ${client.num} - ${client.endereco} - ${client.bairro}</span>
+            <button class="remove-btn" onclick="removeClient(${index})">Remover</button>
+          `;
+          clientList.appendChild(clientItem);
+        });
+      }
+
+      function removeClient(index) {
+        clients.splice(index, 1);
+        localStorage.setItem('clients', JSON.stringify(clients));
+        renderClients();
+      }
+
+      function clearInputs() {
+        document.getElementById('client-nome').value = '';
+        document.getElementById('client-num').value = '';
+        document.getElementById('client-endereco').value = '';
+        document.getElementById('client-bairro').value = '';
+      }
+
+      function filterClients() {
+        const query = document.getElementById('search-client').value.toLowerCase();
+        const filteredClients = clients.filter(client => client.nome.toLowerCase().includes(query));
+        renderFilteredClients(filteredClients);
+      }
+
+      function renderFilteredClients(filteredClients) {
+        const clientList = document.getElementById('client-list');
+        clientList.innerHTML = '<h2>Lista de Clientes</h2>';
+
+        filteredClients.forEach((client, index) => {
+          const clientItem = document.createElement('div');
+          clientItem.className = 'client-item';
+          clientItem.innerHTML = `
+            <span>${client.nome} - ${client.num} - ${client.endereco} - ${client.bairro}</span>
+            <button class="remove-btn" onclick="removeClient(${index})">Remover</button>
+          `;
+          clientList.appendChild(clientItem);
+        });
+      }
+
+      renderClients();
+    </script>
+  </div>
+</body>
+</html>

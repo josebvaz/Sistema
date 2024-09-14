@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Produtos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    h1 {
+      color: #333;
+      padding: 20px;
+      margin: 0;
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .container {
+      padding: 20px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group input, .form-group select {
+      width: 90%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .form-group-price {
+      margin-bottom: 15px;
+    }
+
+    .form-group-price input {
+      width: 90%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .add-product-btn {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .add-product-btn:hover {
+      background-color: #0056b3;
+    }
+
+    .product-list {
+      margin-top: 20px;
+      height: 100vh;
+    }
+
+    .product-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .product-item:last-child {
+      border-bottom: none;
+    }
+
+    .product-item img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+
+    .remove-btn {
+      background-color: #dc3545;
+      color: white;
+      padding: 5px 10px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .remove-btn:hover {
+      background-color: #c82333;
+    }
+
+    .search-bar {
+      margin-bottom: 15px;
+      display: flex;
+      width: 1100px;
+      padding: 10px;
+      flex: 1;
+      margin-right: 10px;
+    }
+
+    .search-bar input {
+      flex: 1;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Produtos</h1>
+  <div class="container">
+    <!-- Barra de pesquisa -->
+    <div class="search-bar">
+      <label for="search-product">Pesquisar produto: </label>
+      <input type="text" id="search-product" placeholder="Pesquisar produtos..." oninput="filterProducts()">
+    </div>
+
+    <!-- Formulário para adicionar produtos -->
+    <div class="form-group">
+      <label for="product-name">Nome do Produto:</label>
+      <input type="text" id="product-name" placeholder="Digite o nome do produto">
+    </div>
+    <div class="form-group-price">
+      <label for="product-price">Preço:</label>
+      <br>
+      <input type="number" id="product-price" placeholder="Digite o preço" step="0.01">
+    </div>
+    <div class="form-group">
+      <label for="product-stock">Quantidade em Estoque:</label>
+      <input type="number" id="product-stock" placeholder="Digite a quantidade" min="0">
+    </div>
+    <div class="form-group">
+      <label for="product-photo">Foto do Produto:</label>
+      <input type="file" id="product-photo" accept="image/*">
+    </div>
+    <button class="add-product-btn" onclick="addProduct()">Adicionar Produto</button>
+
+    <!-- Lista de produtos -->
+    <div class="product-list" id="product-list">
+      <h2>Lista de Produtos</h2>
+    </div>
+
+    <script>
+      let products = JSON.parse(localStorage.getItem('products')) || [];
+
+      function addProduct() {
+        const name = document.getElementById('product-name').value;
+        const price = document.getElementById('product-price').value;
+        const stock = document.getElementById('product-stock').value;
+        const photoInput = document.getElementById('product-photo');
+        const photoFile = photoInput.files[0];
+
+        if (name && price && stock && photoFile) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const product = {
+              name,
+              price: parseFloat(price),
+              stock: parseInt(stock),
+              photo: e.target.result
+            };
+            products.push(product);
+            localStorage.setItem('products', JSON.stringify(products));
+            renderProducts();
+            clearInputs();
+          };
+          reader.readAsDataURL(photoFile);
+        } else {
+          alert("Por favor, preencha todos os campos e faça o upload da foto.");
+        }
+      }
+
+      function renderProducts() {
+        const productList = document.getElementById('product-list');
+        productList.innerHTML = '<h2>Lista de Produtos</h2>';
+
+        products.forEach((product, index) => {
+          const productItem = document.createElement('div');
+          productItem.className = 'product-item';
+          productItem.innerHTML = `
+            <img src="${product.photo}" alt="${product.name}">
+            <span>${product.name} - R$${product.price.toFixed(2)} - Estoque: ${product.stock}</span>
+            <button class="remove-btn" onclick="removeProduct(${index})">Remover</button>
+          `;
+          productList.appendChild(productItem);
+        });
+      }
+
+      function removeProduct(index) {
+        products.splice(index, 1);
+        localStorage.setItem('products', JSON.stringify(products));
+        renderProducts();
+      }
+
+      function clearInputs() {
+        document.getElementById('product-name').value = '';
+        document.getElementById('product-price').value = '';
+        document.getElementById('product-stock').value = '';
+        document.getElementById('product-photo').value = '';
+      }
+
+      function filterProducts() {
+        const query = document.getElementById('search-product').value.toLowerCase();
+        const filteredProducts = products.filter(product => product.name.toLowerCase().includes(query));
+        renderFilteredProducts(filteredProducts);
+      }
+
+      function renderFilteredProducts(filteredProducts) {
+        const productList = document.getElementById('product-list');
+        productList.innerHTML = '<h2>Lista de Produtos</h2>';
+
+        filteredProducts.forEach((product, index) => {
+          const productItem = document.createElement('div');
+          productItem.className = 'product-item';
+          productItem.innerHTML = `
+            <img src="${product.photo}" alt="${product.name}">
+            <span>${product.name} - R$${product.price.toFixed(2)} - Estoque: ${product.stock}</span>
+            <button class="remove-btn" onclick="removeProduct(${index})">Remover</button>
+          `;
+          productList.appendChild(productItem);
+        });
+      }
+
+      renderProducts();
+    </script>
+  </div>
+</body>
+</html>
